@@ -33,7 +33,24 @@ const LoginPage = () => {
       
       // The response structure might be different than expected
       // Make sure we're storing the token correctly
-      const token = response.data.token || response.data.accessToken || response.data;
+      let token = null;
+      
+      if (response.data) {
+        if (typeof response.data === 'string') {
+          token = response.data;
+        } else if (response.data.token) {
+          token = response.data.token;
+        } else if (response.data.accessToken) {
+          token = response.data.accessToken;
+        }
+      }
+      
+      if (!token) {
+        console.error('No token found in response:', response);
+        setError('Invalid response from server. Token not found.');
+        setIsLoading(false);
+        return;
+      }
       
       console.log('Extracted token:', token);
       localStorage.setItem('token', token);
@@ -42,10 +59,22 @@ const LoginPage = () => {
       window.location.href = '/';
     } catch (err) {
       console.error('Login error:', err);
-      setError(
-        err.response?.data?.message || 
-        'Login failed. Please check your credentials and try again.'
-      );
+      
+      let errorMessage = 'Login failed. Please check your credentials and try again.';
+      
+      if (err.response) {
+        console.log('Error response data:', err.response.data);
+        
+        if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        } else if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
