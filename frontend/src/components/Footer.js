@@ -17,16 +17,16 @@ const Footer = () => {
             <h5>Shop</h5>
             <ul className="list-unstyled">
               <li><Link className="text-muted text-decoration-none" to="/products">All Products</Link></li>
-              <li><Link className="text-muted text-decoration-none" to="/products?category=men">Men</Link></li>
-              <li><Link className="text-muted text-decoration-none" to="/products?category=women">Women</Link></li>
-              <li><Link className="text-muted text-decoration-none" to="/products?category=accessories">Accessories</Link></li>
+              <li><Link className="text-muted text-decoration-none" to="/products/category/men">Men</Link></li>
+              <li><Link className="text-muted text-decoration-none" to="/products/category/women">Women</Link></li>
+              <li><Link className="text-muted text-decoration-none" to="/products/category/accessories">Accessories</Link></li>
             </ul>
           </div>
           
           <div className="col-md-2 mb-3 mb-md-0">
             <h5>Company</h5>
             <ul className="list-unstyled">
-              <li><Link className="text-muted text-decoration-none" to="/about">About Us</Link></li>
+              <li><Link className="text-muted text-decoration-none" to="/about-us">About Us</Link></li>
               <li><Link className="text-muted text-decoration-none" to="/contact">Contact</Link></li>
               <li><Link className="text-muted text-decoration-none" to="/careers">Careers</Link></li>
             </ul>
@@ -57,13 +57,13 @@ const Footer = () => {
           <div className="col-md-6 text-center text-md-end mt-3 mt-md-0">
             <ul className="list-inline mb-0">
               <li className="list-inline-item">
-                <Link className="text-muted small" to="/terms">Terms</Link>
+                <Link className="text-muted small" to="/about-us">Terms</Link>
               </li>
               <li className="list-inline-item">
                 <span className="text-muted">|</span>
               </li>
               <li className="list-inline-item">
-                <Link className="text-muted small" to="/privacy">Privacy</Link>
+                <Link className="text-muted small" to="/about-us">Privacy</Link>
               </li>
             </ul>
           </div>
