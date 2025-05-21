@@ -18,7 +18,7 @@ public class IndexController {
     /**
      * Alternative path for SPA routing
      */
-    @GetMapping(value = {"/login", "/register", "/products/**", "/cart", "/checkout"})
+    @GetMapping(value = {"/login", "/register", "/products/**", "/cart", "/checkout", "/admin/**"})
     public String forwardSpaRoutes() {
         return "forward:/";
     }

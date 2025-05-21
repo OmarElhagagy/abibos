@@ -7,6 +7,7 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AdminPage from './pages/AdminPage';
 import Footer from './components/Footer';
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/about-us" element={<div className="p-4"><h2>About Us</h2><p>We are a premier clothing store dedicated to providing high-quality apparel for all occasions.</p></div>} />
           <Route path="/contact" element={<div className="p-4"><h2>Contact Us</h2><p>Email: contact@clothingstore.com<br/>Phone: (123) 456-7890</p></div>} />
           <Route path="/careers" element={<div className="p-4"><h2>Careers</h2><p>Join our team! We're always looking for talented individuals.</p></div>} />

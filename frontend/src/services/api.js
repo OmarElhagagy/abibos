@@ -55,6 +55,34 @@ export const products = {
     
   getTopSelling: (limit = 10) => 
     api.get(`/products/top-selling?limit=${limit}`),
+    
+  // Admin methods
+  create: (productData) => 
+    api.post('/products', productData),
+    
+  update: (id, productData) => 
+    api.put(`/products/${id}`, productData),
+    
+  updateStatus: (id, isActive) =>
+    api.put(`/products/${id}/status?isActive=${isActive}`),
+    
+  updatePrice: (id, newPrice) =>
+    api.put(`/products/${id}/price?newPrice=${newPrice}`),
+    
+  delete: (id) =>
+    api.delete(`/products/${id}`),
+    
+  addImage: (productId, imageUrl, isPrimary = false) =>
+    api.post(`/images?productId=${productId}&imageUrl=${encodeURIComponent(imageUrl)}&isPrimary=${isPrimary}`),
+    
+  deleteImage: (imageId) =>
+    api.delete(`/images/${imageId}`),
+    
+  addToCategory: (productId, categoryId) =>
+    api.post(`/products/${productId}/categories`, { id: categoryId }),
+    
+  removeFromCategory: (productId, categoryId) =>
+    api.delete(`/products/${productId}/categories`, { data: { id: categoryId } })
 };
 
 // Category services

@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer.Customizer;
 
 @Configuration
 @EnableWebSecurity
@@ -27,10 +29,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(authz -> authz
                 // Public endpoints
+                .requestMatchers("/", "/index.html", "/static/**", "/*.js", "/*.json", "/*.ico").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/register-admin").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/stores/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/promotions/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
@@ -43,13 +49,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/carts/**").hasAnyRole("CUSTOMER", "ADMIN")
                 .requestMatchers("/api/wishlists/**").hasAnyRole("CUSTOMER", "ADMIN")
                 .requestMatchers("/api/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
-                // Admin endpoints
-                .requestMatchers("/api/employees/**").hasRole("ADMIN")
-                .requestMatchers("/api/suppliers/**").hasRole("ADMIN")
-                .requestMatchers("/api/storage/**").hasRole("ADMIN")
+                // Admin-only endpoints
                 .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/images/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/images/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
                 // Require authentication for all other requests
                 .anyRequest().authenticated()
             )

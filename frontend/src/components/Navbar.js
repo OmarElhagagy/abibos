@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { auth } from '../services/api';
 
 const Navbar = ({ cartItemsCount }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem('token') !== null;
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  const checkAdminStatus = () => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      setIsAdmin(false);
+      return;
+    }
+    
+    try {
+      // Decode JWT token to check role
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      const userRole = tokenPayload.auth || '';
+      
+      if (userRole.includes('ROLE_ADMIN')) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    } catch (err) {
+      console.error('Error checking admin status:', err);
+      setIsAdmin(false);
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -16,6 +45,7 @@ const Navbar = ({ cartItemsCount }) => {
 
   const handleLogout = () => {
     auth.logout();
+    setIsAdmin(false);
     navigate('/');
   };
 
@@ -92,6 +122,12 @@ const Navbar = ({ cartItemsCount }) => {
                 <ul className="dropdown-menu dropdown-menu-end">
                   <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
                   <li><Link className="dropdown-item" to="/orders">Orders</Link></li>
+                  {isAdmin && (
+                    <>
+                      <li><hr className="dropdown-divider" /></li>
+                      <li><Link className="dropdown-item" to="/admin">Admin Dashboard</Link></li>
+                    </>
+                  )}
                   <li><hr className="dropdown-divider" /></li>
                   <li><button className="dropdown-item" onClick={handleLogout}>Logout</button></li>
                 </ul>

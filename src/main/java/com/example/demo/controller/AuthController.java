@@ -64,4 +64,20 @@ public class AuthController {
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
+
+    @PostMapping("/register-admin")
+    public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterRequest registerRequest) {
+        if (userService.isEmailTaken(registerRequest.getEmail())) {
+            throw new BadRequestException("Email is already taken");
+        }
+
+        User user = userService.createUser(
+                null,  // Customer object is set to null for now
+                registerRequest.getEmail(),
+                registerRequest.getPassword(),
+                "ROLE_ADMIN" // Admin role
+        );
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
 } 
