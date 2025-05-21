@@ -36,80 +36,20 @@ export const auth = {
   }
 };
 
-// Product services
+// Products services
 export const products = {
-  getAll: () => 
-    api.get('/products'),
-  
-  getById: (id) => 
-    api.get(`/products/${id}`),
-  
-  getByCategory: (categoryId) => 
-    api.get(`/products/search/category`, { data: { id: categoryId } }),
-  
-  search: (keyword) => 
-    api.get(`/products/search/name?keyword=${encodeURIComponent(keyword)}`),
-    
-  getLatest: () => 
-    api.get('/products/latest'),
-    
-  getTopSelling: (limit = 10) => 
-    api.get(`/products/top-selling?limit=${limit}`),
-    
-  // Admin methods
-  create: (productData) => 
-    api.post('/products', productData),
-    
-  update: (id, productData) => 
-    api.put(`/products/${id}`, productData),
-    
-  updateStatus: (id, isActive) =>
-    api.put(`/products/${id}/status?isActive=${isActive}`),
-    
-  updatePrice: (id, newPrice) =>
-    api.put(`/products/${id}/price?newPrice=${newPrice}`),
-    
-  delete: (id) =>
-    api.delete(`/products/${id}`),
-    
-  addImage: (productId, imageUrl, isPrimary = false) =>
-    api.post(`/images?productId=${productId}&imageUrl=${encodeURIComponent(imageUrl)}&isPrimary=${isPrimary}`),
-    
-  deleteImage: (imageId) =>
-    api.delete(`/images/${imageId}`),
-    
-  addToCategory: (productId, categoryId) =>
-    api.post(`/products/${productId}/categories`, { id: categoryId }),
-    
-  removeFromCategory: (productId, categoryId) =>
-    api.delete(`/products/${productId}/categories`, { data: { id: categoryId } })
+  getAll: () => api.get('/products'),
+  getById: (id) => api.get(`/products/${id}`),
+  getByCategory: (category) => api.get(`/products/category/${category}`),
+  create: (product) => api.post('/products', product),
+  update: (id, product) => api.put(`/products/${id}`, product),
+  delete: (id) => api.delete(`/products/${id}`)
 };
 
-// Category services
+// Categories services
 export const categories = {
-  getAll: () => 
-    api.get('/categories'),
-    
-  getById: (id) => 
-    api.get(`/categories/${id}`),
-};
-
-// Cart services
-export const cart = {
-  getItems: () => 
-    api.get('/cart'),
-    
-  addItem: (productId, quantity = 1) => 
-    api.post('/cart', { productId, quantity }),
-    
-  updateItem: (productId, quantity) => 
-    api.put('/cart', { productId, quantity }),
-    
-  removeItem: (productId) => 
-    api.delete(`/cart/${productId}`),
-    
-  clear: () => 
-    api.delete('/cart'),
+  getAll: () => api.get('/categories'),
+  getById: (id) => api.get(`/categories/${id}`)
 };
 
 // Order services
@@ -119,21 +59,18 @@ export const orders = {
     
   getByCustomer: () => 
     api.get('/customer-orders/customer'),
-    
+  
   getById: (id) => 
     api.get(`/customer-orders/${id}`),
 };
 
-// Customer services
+// Customer management
 export const customers = {
-  getCurrent: () => 
-    api.get('/customers/current'),
+  getProfile: () => 
+    api.get('/customers/profile'),
     
-  update: (customerData) => 
-    api.put('/customers/current', customerData),
-    
-  getAddresses: () => 
-    api.get('/addresses'),
+  updateProfile: (profileData) => 
+    api.put('/customers/profile', profileData),
     
   addAddress: (addressData) => 
     api.post('/addresses', addressData),
@@ -143,7 +80,6 @@ export default {
   auth,
   products,
   categories,
-  cart,
   orders,
   customers,
 }; 

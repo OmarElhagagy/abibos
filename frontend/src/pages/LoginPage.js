@@ -26,13 +26,20 @@ const LoginPage = () => {
       setIsLoading(true);
       setError('');
       
+      console.log('Attempting login with:', formData.email);
       const response = await auth.login(formData.email, formData.password);
       
-      // Store the JWT token
-      localStorage.setItem('token', response.data.token);
+      console.log('Login response:', response);
       
-      // Redirect to home page
-      navigate('/');
+      // The response structure might be different than expected
+      // Make sure we're storing the token correctly
+      const token = response.data.token || response.data.accessToken || response.data;
+      
+      console.log('Extracted token:', token);
+      localStorage.setItem('token', token);
+      
+      // Force a reload to update the navbar state
+      window.location.href = '/';
     } catch (err) {
       console.error('Login error:', err);
       setError(

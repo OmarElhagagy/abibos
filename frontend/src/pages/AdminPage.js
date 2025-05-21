@@ -39,13 +39,46 @@ const AdminPage = () => {
     }
     
     try {
-      // Decode JWT token to check role
-      // This is a simple frontend check - the backend will validate permissions too
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-      const userRole = tokenPayload.auth || '';
+      console.log('Checking admin status in AdminPage with token:', token);
       
-      if (userRole.includes('ROLE_ADMIN')) {
+      // Try to parse the JWT token
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.error('Invalid token format');
+        setError("Invalid authentication token format");
+        setIsAdmin(false);
+        return;
+      }
+      
+      const encodedPayload = parts[1];
+      const decodedPayload = atob(encodedPayload);
+      const tokenPayload = JSON.parse(decodedPayload);
+      
+      console.log('Token payload:', tokenPayload);
+      
+      // Different JWT implementations might have different fields
+      // Check various common authority/role fields
+      const authorities = 
+        tokenPayload.auth || 
+        tokenPayload.authorities || 
+        tokenPayload.roles ||
+        tokenPayload.scope ||
+        '';
+      
+      console.log('Found authorities:', authorities);
+      
+      // Check if any of these contain ADMIN
+      let hasAdminRole = false;
+      if (typeof authorities === 'string') {
+        hasAdminRole = authorities.includes('ADMIN') || authorities.includes('admin');
+      } else if (Array.isArray(authorities)) {
+        hasAdminRole = authorities.some(auth => 
+          auth.includes('ADMIN') || auth.includes('admin'));
+      }
+      
+      if (hasAdminRole) {
         setIsAdmin(true);
+        setError(null);
       } else {
         setError("You do not have permission to access this page");
         setIsAdmin(false);
@@ -53,7 +86,8 @@ const AdminPage = () => {
         setTimeout(() => navigate('/'), 3000);
       }
     } catch (err) {
-      setError("Error verifying permissions");
+      console.error('Error checking admin status:', err);
+      setError("Error verifying permissions: " + err.message);
       setIsAdmin(false);
     }
   };
@@ -229,45 +263,45 @@ const AdminPage = () => {
           <Modal.Body>
             <Form.Group className="mb-3">
               <Form.Label>Product Name</Form.Label>
-              <Form.Control 
-                type="text" 
-                name="productName" 
-                value={formData.productName} 
-                onChange={handleInputChange} 
-                required 
+              <Form.Control
+                type="text"
+                name="productName"
+                value={formData.productName}
+                onChange={handleInputChange}
+                required
               />
             </Form.Group>
             
             <Form.Group className="mb-3">
               <Form.Label>Brand</Form.Label>
-              <Form.Control 
-                type="text" 
-                name="brand" 
-                value={formData.brand} 
-                onChange={handleInputChange} 
-                required 
+              <Form.Control
+                type="text"
+                name="brand"
+                value={formData.brand}
+                onChange={handleInputChange}
+                required
               />
             </Form.Group>
             
             <Form.Group className="mb-3">
               <Form.Label>Price</Form.Label>
-              <Form.Control 
-                type="number" 
-                step="0.01" 
-                name="price" 
-                value={formData.price} 
-                onChange={handleInputChange} 
-                required 
+              <Form.Control
+                type="number"
+                step="0.01"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                required
               />
             </Form.Group>
             
             <Form.Group className="mb-3">
               <Form.Label>Color</Form.Label>
-              <Form.Control 
-                type="text" 
-                name="color" 
-                value={formData.color} 
-                onChange={handleInputChange} 
+              <Form.Control
+                type="text"
+                name="color"
+                value={formData.color}
+                onChange={handleInputChange}
                 required 
               />
             </Form.Group>
@@ -275,9 +309,9 @@ const AdminPage = () => {
             <Form.Group className="mb-3">
               <Form.Label>Size</Form.Label>
               <Form.Select 
-                name="size" 
-                value={formData.size} 
-                onChange={handleInputChange} 
+                name="size"
+                value={formData.size}
+                onChange={handleInputChange}
                 required
               >
                 <option value="">Select Size</option>
@@ -293,23 +327,23 @@ const AdminPage = () => {
             
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
-              <Form.Control 
-                as="textarea" 
-                rows={3} 
-                name="description" 
-                value={formData.description} 
-                onChange={handleInputChange} 
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
                 required 
               />
             </Form.Group>
             
             <Form.Group className="mb-3">
-              <Form.Check 
-                type="checkbox" 
-                label="Active" 
-                name="isActive" 
-                checked={formData.isActive} 
-                onChange={handleInputChange} 
+              <Form.Check
+                type="checkbox"
+                label="Active"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={handleInputChange}
               />
             </Form.Group>
           </Modal.Body>
@@ -327,4 +361,4 @@ const AdminPage = () => {
   );
 };
 
-export default AdminPage; 
+export default AdminPage;

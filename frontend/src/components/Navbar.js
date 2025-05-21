@@ -9,27 +9,68 @@ const Navbar = ({ cartItemsCount }) => {
   const isAuthenticated = localStorage.getItem('token') !== null;
 
   useEffect(() => {
-    checkAdminStatus();
+    // Check admin status whenever auth state changes
+    const checkAuthAndAdmin = () => {
+      checkAdminStatus();
+    };
+    
+    checkAuthAndAdmin();
+    // Add event listener for storage changes (login/logout)
+    window.addEventListener('storage', checkAuthAndAdmin);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuthAndAdmin);
+    };
   }, []);
 
   const checkAdminStatus = () => {
     const token = localStorage.getItem('token');
     
     if (!token) {
+      console.log('No token found, not admin');
       setIsAdmin(false);
       return;
     }
     
     try {
-      // Decode JWT token to check role
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-      const userRole = tokenPayload.auth || '';
+      console.log('Checking admin status with token:', token);
       
-      if (userRole.includes('ROLE_ADMIN')) {
-        setIsAdmin(true);
+      // Try to parse the JWT token
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.error('Invalid token format');
+        setIsAdmin(false);
+        return;
+      }
+      
+      const encodedPayload = parts[1];
+      const decodedPayload = atob(encodedPayload);
+      const tokenPayload = JSON.parse(decodedPayload);
+      
+      console.log('Token payload:', tokenPayload);
+      
+      // Different JWT implementations might have different fields
+      // Check various common authority/role fields
+      const authorities = 
+        tokenPayload.auth || 
+        tokenPayload.authorities || 
+        tokenPayload.roles ||
+        tokenPayload.scope ||
+        '';
+      
+      console.log('Found authorities:', authorities);
+      
+      // Check if any of these contain ADMIN
+      if (typeof authorities === 'string') {
+        setIsAdmin(authorities.includes('ADMIN') || authorities.includes('admin'));
+      } else if (Array.isArray(authorities)) {
+        setIsAdmin(authorities.some(auth => 
+          auth.includes('ADMIN') || auth.includes('admin')));
       } else {
         setIsAdmin(false);
       }
+      
+      console.log('Is admin:', isAdmin);
     } catch (err) {
       console.error('Error checking admin status:', err);
       setIsAdmin(false);
@@ -71,6 +112,11 @@ const Navbar = ({ cartItemsCount }) => {
             <li className="nav-item">
               <NavLink className="nav-link" to="/products">Products</NavLink>
             </li>
+            {isAdmin && (
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/admin">Admin Dashboard</NavLink>
+              </li>
+            )}
             <li className="nav-item dropdown">
               <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                 Categories
@@ -145,4 +191,4 @@ const Navbar = ({ cartItemsCount }) => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
