@@ -3,129 +3,116 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const CartPage = ({ cartItems, removeFromCart, updateQuantity }) => {
   const navigate = useNavigate();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-  
-  // Calculate cart totals
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 0 ? 10 : 0; // Free shipping over $100
-  const tax = subtotal * 0.1; // 10% tax
-  const total = subtotal + shipping + tax;
-  
-  const handleQuantityChange = (productId, newQuantity) => {
-    if (newQuantity < 1) return;
-    updateQuantity(productId, newQuantity);
-  };
-  
-  const handleCheckout = () => {
-    // In a real app, this would navigate to a checkout page or process
-    setIsCheckingOut(true);
-    setTimeout(() => {
-      alert('Checkout functionality would be implemented here.');
-      setIsCheckingOut(false);
-    }, 1000);
-  };
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
 
   if (cartItems.length === 0) {
     return (
       <div className="text-center py-5">
-        <h2 className="mb-4">Your Cart is Empty</h2>
-        <p className="mb-4">Looks like you haven't added any products to your cart yet.</p>
-        <Link to="/products" className="btn btn-primary">
-          Continue Shopping
-        </Link>
+        <h2>Your Cart is Empty</h2>
+        <p className="lead mb-4">Looks like you haven't added any items to your cart yet.</p>
+        <Link to="/products" className="btn btn-primary">Continue Shopping</Link>
+      </div>
+    );
+  }
+
+  // Calculate cart totals
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = subtotal > 0 ? 5.99 : 0;
+  const tax = subtotal * 0.07; // 7% tax
+  const total = subtotal + shipping + tax;
+
+  const handleCheckout = () => {
+    setCheckoutLoading(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      setCheckoutLoading(false);
+      setCheckoutSuccess(true);
+      
+      // Redirect to confirmation after checkout
+      setTimeout(() => {
+        navigate('/');
+        // This would be where you'd clear the cart in a real application
+      }, 2000);
+    }, 1500);
+  };
+
+  if (checkoutSuccess) {
+    return (
+      <div className="text-center py-5">
+        <div className="mb-4">
+          <i className="bi bi-check-circle text-success" style={{ fontSize: '4rem' }}></i>
+        </div>
+        <h2>Thank You for Your Order!</h2>
+        <p className="lead mb-4">Your order has been placed successfully.</p>
+        <p>You will receive a confirmation email shortly.</p>
+        <p className="text-muted">Redirecting to home page...</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h2 className="mb-4">Shopping Cart</h2>
+      <h2 className="mb-4">Your Shopping Cart</h2>
       
       <div className="row">
-        {/* Cart Items */}
         <div className="col-lg-8">
+          {/* Cart Items */}
           <div className="card mb-4">
             <div className="card-body">
-              <div className="table-responsive">
-                <table className="table table-hover">
-                  <thead>
-                    <tr>
-                      <th scope="col">Product</th>
-                      <th scope="col">Price</th>
-                      <th scope="col">Quantity</th>
-                      <th scope="col">Total</th>
-                      <th scope="col"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cartItems.map(item => (
-                      <tr key={item.id}>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <img 
-                              src={item.images && item.images.length > 0 
-                                ? item.images[0].url 
-                                : 'https://via.placeholder.com/50x50?text=No+Image'} 
-                              alt={item.productName} 
-                              className="me-3" 
-                              style={{ width: '50px', height: '50px', objectFit: 'cover' }} 
-                            />
-                            <div>
-                              <h6 className="mb-0">
-                                <Link to={`/products/${item.id}`} className="text-decoration-none text-dark">
-                                  {item.productName}
-                                </Link>
-                              </h6>
-                              <small className="text-muted">
-                                {item.color}, {item.size}
-                              </small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>${item.price.toFixed(2)}</td>
-                        <td>
-                          <div className="input-group input-group-sm" style={{ width: '100px' }}>
-                            <button 
-                              className="btn btn-outline-secondary" 
-                              type="button"
-                              onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                            >
-                              -
-                            </button>
-                            <input 
-                              type="number" 
-                              className="form-control text-center" 
-                              value={item.quantity}
-                              onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                              min="1"
-                            />
-                            <button 
-                              className="btn btn-outline-secondary" 
-                              type="button"
-                              onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </td>
-                        <td>${(item.price * item.quantity).toFixed(2)}</td>
-                        <td>
-                          <button 
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => removeFromCart(item.id)}
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="d-flex justify-content-between mt-3">
-                <Link to="/products" className="btn btn-outline-secondary">
-                  <i className="bi bi-arrow-left me-2"></i>
+              {cartItems.map(item => (
+                <div key={item.id} className="row mb-3 border-bottom pb-3">
+                  <div className="col-md-3 mb-2 mb-md-0">
+                    <img 
+                      src={item.images?.[0]?.imageUrl || "https://via.placeholder.com/100"} 
+                      alt={item.productName} 
+                      className="img-fluid rounded"
+                    />
+                  </div>
+                  <div className="col-md-6 mb-2 mb-md-0">
+                    <h5>{item.productName}</h5>
+                    <p className="text-muted">
+                      {item.brand} - {item.color} - {item.size}
+                    </p>
+                    <p className="fw-bold">${item.price.toFixed(2)}</p>
+                  </div>
+                  <div className="col-md-3">
+                    <div className="d-flex flex-column">
+                      <div className="input-group mb-3">
+                        <button 
+                          className="btn btn-outline-secondary" 
+                          type="button"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        >
+                          -
+                        </button>
+                        <input 
+                          type="text" 
+                          className="form-control text-center" 
+                          value={item.quantity}
+                          readOnly
+                        />
+                        <button 
+                          className="btn btn-outline-secondary" 
+                          type="button"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button 
+                        className="btn btn-outline-danger btn-sm mt-2"
+                        onClick={() => removeFromCart(item.id)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className="text-end">
+                <Link to="/products" className="btn btn-outline-primary">
                   Continue Shopping
                 </Link>
               </div>
@@ -133,46 +120,52 @@ const CartPage = ({ cartItems, removeFromCart, updateQuantity }) => {
           </div>
         </div>
         
-        {/* Order Summary */}
         <div className="col-lg-4">
+          {/* Order Summary */}
           <div className="card">
             <div className="card-body">
-              <h5 className="card-title mb-4">Order Summary</h5>
-              
+              <h5 className="card-title">Order Summary</h5>
               <div className="d-flex justify-content-between mb-2">
-                <span>Subtotal</span>
+                <span>Subtotal:</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              
               <div className="d-flex justify-content-between mb-2">
-                <span>Shipping</span>
+                <span>Shipping:</span>
                 <span>${shipping.toFixed(2)}</span>
               </div>
-              
               <div className="d-flex justify-content-between mb-2">
-                <span>Tax</span>
+                <span>Tax:</span>
                 <span>${tax.toFixed(2)}</span>
               </div>
-              
               <hr />
-              
-              <div className="d-flex justify-content-between mb-4">
-                <span className="fw-bold">Total</span>
-                <span className="fw-bold">${total.toFixed(2)}</span>
+              <div className="d-flex justify-content-between fw-bold mb-4">
+                <span>Total:</span>
+                <span>${total.toFixed(2)}</span>
               </div>
-              
               <button 
-                className="btn btn-primary w-100"
+                className="btn btn-primary w-100" 
                 onClick={handleCheckout}
-                disabled={isCheckingOut}
+                disabled={checkoutLoading}
               >
-                {isCheckingOut ? (
+                {checkoutLoading ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     Processing...
                   </>
                 ) : 'Proceed to Checkout'}
               </button>
+            </div>
+          </div>
+          
+          {/* Accepted Payment Methods */}
+          <div className="card mt-3">
+            <div className="card-body">
+              <h6 className="card-title">We Accept</h6>
+              <div className="d-flex gap-2 mt-2">
+                <i className="bi bi-credit-card fs-4"></i>
+                <i className="bi bi-paypal fs-4"></i>
+                <i className="bi bi-wallet2 fs-4"></i>
+              </div>
             </div>
           </div>
         </div>
